@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Install Nginx
+    command: "docker pull nginx"
+  - name: send docker-compose
+    copy: 
+      src: ./conf_nginx/
+      dest: /home/admin/
+      force: no
+  - name: run docker-compose
+    command: "docker-compose up"
+  - name: run docker
+    command: "docker run admin_nginx"
