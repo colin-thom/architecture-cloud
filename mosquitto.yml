@@ -1,0 +1,26 @@
+- hosts: all
+  become: yes
+  tasks:
+  - name: download mosquitto img
+    command: docker pull eclipse-mosquitto
+
+  - name: send docker files into vm
+    copy: 
+      src: ./mosquitto.conf
+      dest: /home/admin/
+      force: no
+
+  - name: creation docker mqtt
+    docker_container:
+      name: mqtt
+      auto_remove: yes
+      image: eclipse-mosquitto
+      state: started
+      ports:
+        "1883:1883"
+
+  - name: copy conf mqtt 
+    command: docker cp ./mosquitto.conf mqtt:mosquitto/config
+
+  - name: restart mosquitto container
+    command: docker restart mqtt
