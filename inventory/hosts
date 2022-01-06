@@ -1,0 +1,1 @@
+admin@ec2-54-167-200-51.compute-1.amazonaws.com ansible_ssh_private_key_file=~/Documents/architecture-cloud/inventory/key

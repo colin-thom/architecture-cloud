@@ -2,14 +2,53 @@
 - hosts: all
   become: yes
   tasks:
-  - name: Install Nginx
+  - name: download Nginx image
     command: "docker pull nginx"
-  - name: send docker-compose
+
+  # - name: update apt
+  #   command: apt update 
+  # - name: install certbot 
+  #   command: apt install -y certbot
+  # - name: use certbot
+  #   command: certbot certonly -d latunecampusl3.tk --standalone -m thomas.colin@le-campus-numerique.fr --agree-tos --no-eff-email
+
+  - name: creation docker nginx
+    docker_container:
+      name: nginx
+      auto_remove: yes
+      image: nginx:stable
+      state: started
+      ports: 
+        - "80:80"
+        - "443:443"
+      
+  - name: send docker files into vm
     copy: 
       src: ./conf_nginx/
       dest: /home/admin/
       force: no
-  - name: run docker-compose
-    command: "docker-compose up"
-  - name: run docker
-    command: "docker run admin_nginx"
+
+  - name: copy conf ngninx 
+    command: docker cp ./ nginx:/etc/nginx/
+
+  - name: certif into docker container
+    command: docker cp /etc/letsencrypt/ nginx:/home/letsencrypt
+
+  - name: unit ssl 
+    command: docker exec -it nginx openssl dhparam -out /etc/nginx/dhparam.pem 2048
+  
+  - name: restart nginx
+    command: docker restart nginx
+
+
+  # - name: run docker-compose
+  #   command: "docker-compose -y up"
+  # - name: restart nginx
+  #   command: docker exec -it nginx nginx
+        # volumes:
+      #   - ./conf_nginx/:/etc/nginx/
+      #   - ./conf_nginx/sites-available/:/etc/nginx/sites-available/
+      #   - ./conf_nginx/sites-enabled/:/etc/nginx/sites-enabled/
+      #   - ./conf_nginx/nginxconfig.io/:/etc/nginx/nginxconfig.io/
+      #   - ./conf_nginx/www/:/var/www/latune/public/
+
