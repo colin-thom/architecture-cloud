@@ -18,6 +18,8 @@
       state: started
       ports:
         "1883:1883"
+      networks:
+      - name: latunet
 
   - name: copy conf mqtt 
     command: docker cp ./mosquitto.conf mqtt:mosquitto/config

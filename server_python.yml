@@ -1,0 +1,15 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+  - name: Create a network
+    community.docker.docker_network: 
+      name: latunet  
+  - name: python server
+    docker_container:
+      image: python
+      name: server_python
+      state: started
+      networks:
+        - name: latunet
+      command: python -m http.server

@@ -12,34 +12,39 @@
   # - name: use certbot
   #   command: certbot certonly -d latunecampusl3.tk --standalone -m thomas.colin@le-campus-numerique.fr --agree-tos --no-eff-email
 
-  - name: creation docker nginx
-    docker_container:
-      name: nginx
-      auto_remove: yes
-      image: nginx:stable
-      state: started
-      ports: 
-        - "80:80"
-        - "443:443"
-      
   - name: send docker files into vm
     copy: 
       src: ./conf_nginx/
       dest: /home/admin/
       force: no
 
-  - name: copy conf ngninx 
-    command: docker cp ./ nginx:/etc/nginx/
-
-  - name: certif into docker container
-    command: docker cp /etc/letsencrypt/ nginx:/home/letsencrypt
-
   - name: unit ssl 
-    command: docker exec -it nginx openssl dhparam -out /etc/nginx/dhparam.pem 2048
-  
-  - name: restart nginx
-    command: docker restart nginx
+    command: openssl dhparam -out /home/admin/dhparam.pem 2048
 
+  - name: creation docker nginx
+    docker_container:
+      name: nginx
+      image: nginx
+      volumes:
+        - /home/admin/:/etc/nginx
+        - /etc/letsencrypt/:/etc/letsencrypt/:ro
+        - /home/admin/dhparam.pem:/etc/nginx/dhparam.pem:ro
+      state: started
+      ports: 
+        - "80:80"
+        - "443:443"
+      networks:
+        - name: latunet
+      recreate: yes
+
+  # - name: copy conf ngninx 
+  #   command: docker cp ./ nginx:/etc/nginx/
+
+  # - name: certif into docker container
+  #   command: docker cp /etc/letsencrypt/ nginx:/home/letsencrypt
+  
+  # - name: restart nginx
+  #   command: docker restart nginx
 
   # - name: run docker-compose
   #   command: "docker-compose -y up"
