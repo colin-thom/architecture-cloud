@@ -10,19 +10,21 @@
       dest: /home/admin/
       force: no
 
-  - name: creation docker mqtt
+
+  - name: creation docker nginx
     docker_container:
+      user: "0"
       name: mqtt
-      auto_remove: yes
       image: eclipse-mosquitto
-      state: started
       ports:
-        "1883:1883"
-      networks:
-      - name: latunet
+        - 1883:1883
+        - 9001:9001
+      volumes:
+        - /home/admin/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      state: started
 
-  - name: copy conf mqtt 
-    command: docker cp ./mosquitto.conf mqtt:mosquitto/config
+  # - name: copy conf mqtt 
+  #   command: docker cp ./mosquitto.conf mqtt:mosquitto/config
 
-  - name: restart mosquitto container
-    command: docker restart mqtt
+  # - name: restart mosquitto container
+  #   command: docker restart mqtt
